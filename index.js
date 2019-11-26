@@ -1,13 +1,15 @@
 "use strict";
 
 const Hapi = require("@hapi/hapi");
+const bcrypt = require("bcrypt");
 const Mongoose = require("mongoose");
 const Users = require("./models/user.model");
-
+const { secrets } = require("./secrets");
 const MongoDBURL = `mongodb://sumanth:cNr#ld3TP$28@ds251849.mlab.com:51849/tenesse_mark_2`;
 
 Mongoose.connect(MongoDBURL, {
-  useNewUrlParser: true
+  useNewUrlParser: true,
+  useUnifiedTopology: true
 });
 
 Mongoose.connection.on("connected", () => {
@@ -38,25 +40,25 @@ const init = async () => {
     handler: async (req, h) => {
       // get the payload
       const userData = req.payload;
-      const { first_name, last_name, email, password } = userData;
       // validate
       // check if the user is present
-      const user = await Users.findOne({ email });
-      if (!user) {
-        //encrypt the password
-        //save the user and
-        try {
-          const createUser = await Users.create(userData);
-          return { status: `${createUser.email}'s account is created` };
-        } catch (err) {
-          console.log(err);
+      try {
+        const user = await Users.findOne({ email: userData.email });
+        if (!user) {
+          //encrypt the password
+          bcrypt.hash(userData.password, 10, async (err, hash) => {
+            userData.password = hash;
+            console.log("here");
+            const createUser = await Users.create(userData);
+            // send back 200
+            return { status: `${createUser.email}'s account is created` };
+          });
+        } else {
+          return { status: `${user.email}'s account is already present` };
         }
-
-        // send back 200
+      } catch (err) {
+        console.log(err);
       }
-
-      // handle errors accordinly
-      return "signup";
     }
   });
 
