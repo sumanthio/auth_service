@@ -1,10 +1,10 @@
 "use strict";
 
-const Hapi = require("@hapi/hapi");
-const bcrypt = require("bcrypt");
-const Mongoose = require("mongoose");
-const Users = require("./models/user.model");
-const { secrets } = require("./secrets");
+import * as Hapi from "@hapi/hapi";
+import * as bcrypt from "bcrypt";
+import Mongoose from "mongoose";
+import Users from "./models/user.model";
+// const { secrets } = require("./secrets");
 const MongoDBURL = `mongodb://sumanth:cNr#ld3TP$28@ds251849.mlab.com:51849/tenesse_mark_2`;
 
 Mongoose.connect(MongoDBURL, {
@@ -16,12 +16,12 @@ Mongoose.connection.on("connected", () => {
   console.log("DB connection established");
 });
 
-Mongoose.connection.on("error", error => {
+Mongoose.connection.on("error", (error: Mongoose.Error) => {
   console.log("DB connection screwed", error);
 });
 
 const init = async () => {
-  const server = Hapi.server({
+  const server = new Hapi.Server({
     port: "1024",
     host: "localhost"
   });
@@ -29,7 +29,7 @@ const init = async () => {
   server.route({
     method: "GET",
     path: "/",
-    handler: (request, h) => {
+    handler: () => {
       return "Welcome";
     }
   });
@@ -37,7 +37,7 @@ const init = async () => {
   server.route({
     method: "POST",
     path: "/register",
-    handler: async (req, h) => {
+    handler: async (req: Hapi.Request): Promise<void> => {
       // get the payload
       const userData = req.payload;
       // validate
@@ -65,7 +65,7 @@ const init = async () => {
   server.route({
     method: "POST",
     path: "/login",
-    handler: (request, h) => {
+    handler: () => {
       // get the payload
       // validate
       // verify in the database by query

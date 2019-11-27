@@ -7,4 +7,4 @@ const User = new Mongoose.Schema({
   password: String
 });
 
-module.exports = User;
+export default User;

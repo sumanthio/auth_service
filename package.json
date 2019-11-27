@@ -9,7 +9,8 @@
   "license": "MIT",
   "dependencies": {
     "@hapi/hapi": "^18.4.0",
-    "@types/hapi": "^18.0.3",
+    "@types/hapi__hapi": "^18.2.6",
+    "@types/mongoose": "^5.5.32",
     "bcrypt": "^3.0.7",
     "mongoose": "^5.7.12",
     "nodemon": "^1.19.4",
@@ -17,5 +18,8 @@
     "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^3.0.0"
   }
 }
