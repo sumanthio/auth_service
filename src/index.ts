@@ -22,7 +22,7 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
   console.log("DB connection screwed", error);
 });
 
-const init = async () => {
+(async () => {
   const server = new Hapi.Server({
     port: "1024",
     host: "localhost"
@@ -75,11 +75,9 @@ const init = async () => {
 
   await server.start();
   console.log(`Server started at ${server.info.uri}`);
-};
+})();
 
 process.on("unhandledRejection", err => {
   console.log(err);
   process.exit(1);
 });
-
-init();
