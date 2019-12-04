@@ -51,9 +51,8 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
       const hashedPassword = bcrypt.hashSync(password, 10);
       const newUser = { first_name, last_name, password: hashedPassword, email };
       try {
-        const userCreated = await User.create(newUser);
-        console.log(userCreated);
-        return { status: `${userCreated}'s registered` };
+        const userCreated: Mongoose.Document | any = await User.create(newUser);
+        return { status: `${userCreated.email}'s registered` };
       } catch (err) {
         return Boom.badRequest(err);
       }
