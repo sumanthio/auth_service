@@ -5,6 +5,7 @@ import Boom from "@hapi/boom";
 import * as bcrypt from "bcrypt";
 import Mongoose from "mongoose";
 import { sign } from "jsonwebtoken";
+import { ApolloServer, gql } from "apollo-server-hapi";
 
 import User from "./models/user.model";
 import { registerValidator, loginValidator } from "./validators";
@@ -24,11 +25,31 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
   console.log("DB connection screwed", error);
 });
 
+const typeDefs = gql`
+  type Query {
+    hello: String!
+  }
+`;
+
+const resolvers = {
+  Query: {
+    hello: () => "hello world!"
+  }
+};
+
 (async () => {
+  const apolloServer = new ApolloServer({
+    typeDefs,
+    resolvers
+  });
+
   const server = new Hapi.Server({
     port: "1024",
     host: "localhost"
   });
+
+  await apolloServer.applyMiddleware({ app: server });
+  await apolloServer.installSubscriptionHandlers(server.listener);
 
   server.route({
     method: "GET",
