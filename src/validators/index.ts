@@ -1,6 +1,6 @@
 import Joi from "@hapi/joi";
 
-const registerValidator = (registerPayload: any) => {
+export const registerValidator = (registerPayload: any) => {
   const schema = Joi.object({
     first_name: Joi.string()
       .min(3)
@@ -18,4 +18,12 @@ const registerValidator = (registerPayload: any) => {
   return schema.validate(registerPayload);
 };
 
-export default registerValidator;
+export const loginValidator = (loginPayload: any) => {
+  const schema = Joi.object({
+    email: Joi.string()
+      .email({ minDomainSegments: 2 })
+      .required(),
+    password: Joi.string().required()
+  });
+  return schema.validate(loginPayload);
+};

@@ -1,13 +1,15 @@
 "use strict";
-
+import "dotenv/config";
 import * as Hapi from "@hapi/hapi";
 import Boom from "@hapi/boom";
 import * as bcrypt from "bcrypt";
 import Mongoose from "mongoose";
+import { sign } from "jsonwebtoken";
+
 import User from "./models/user.model";
-import registerValidator from "./validators";
-// const { secrets } = require("./secrets");
-const MongoDBURL = `mongodb://sumanth:cNr#ld3TP$28@ds251849.mlab.com:51849/tenesse_mark_2`;
+import { registerValidator, loginValidator } from "./validators";
+
+const MongoDBURL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
 
 Mongoose.connect(MongoDBURL, {
   useNewUrlParser: true,
@@ -62,13 +64,21 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
   server.route({
     method: "POST",
     path: "/login",
-    handler: () => {
-      // get the payload
-      // validate
-      // verify in the database by query
-      // send back 200 and
-      // handle errors accordinly
-      return "login";
+    handler: async ({ payload }): Promise<any> => {
+      const { email, password }: any = payload;
+      const { error }: any = loginValidator(payload);
+      if (error) return Boom.badRequest(error);
+
+      try {
+        const userExists = await User.findOne({ email });
+        if (userExists) {
+          if (bcrypt.compareSync(password, userExists.password)) {
+            return sign({ userID: userExists.id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "15m" });
+          }
+        }
+      } catch (err) {
+        return Boom.badRequest(err);
+      }
     }
   });
 
