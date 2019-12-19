@@ -1,14 +1,17 @@
 "use strict";
 import "dotenv/config";
+import "reflect-metadata";
 import * as Hapi from "@hapi/hapi";
 import Boom from "@hapi/boom";
 import * as bcrypt from "bcrypt";
 import Mongoose from "mongoose";
 import { sign } from "jsonwebtoken";
-import { ApolloServer, gql } from "apollo-server-hapi";
+import { ApolloServer } from "apollo-server-hapi";
 
 import User from "./models/user.model";
 import { registerValidator, loginValidator } from "./validators";
+import { buildSchema } from "type-graphql";
+import { UserResolver } from "./UserResolver";
 
 const MongoDBURL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
 
@@ -25,22 +28,11 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
   console.log("DB connection screwed", error);
 });
 
-const typeDefs = gql`
-  type Query {
-    hello: String!
-  }
-`;
-
-const resolvers = {
-  Query: {
-    hello: () => "hello world!"
-  }
-};
-
 (async () => {
   const apolloServer = new ApolloServer({
-    typeDefs,
-    resolvers
+    schema: await buildSchema({
+      resolvers: [UserResolver]
+    })
   });
 
   const server = new Hapi.Server({
