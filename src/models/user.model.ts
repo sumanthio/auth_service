@@ -1,7 +1,7 @@
 import * as mongoose from "mongoose";
+import { ObjectType, Field } from "type-graphql";
 
 const Schema = mongoose.Schema;
-
 interface UserModel extends mongoose.Document {
   first_name: string;
   last_name: string;
@@ -24,7 +24,6 @@ let UserSchema = new Schema({
   this.modifiedAt = now;
   next();
 });
-
 const Users = mongoose.model<UserModel>("users", UserSchema, "users", true);
 
 export default Users;
