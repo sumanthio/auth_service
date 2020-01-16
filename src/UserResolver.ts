@@ -1,19 +1,21 @@
-import { Resolver, Query, Mutation, Arg } from "type-graphql";
+import { Resolver, Query, Mutation, Arg, ObjectType, Field } from "type-graphql";
 import * as bcrypt from "bcrypt";
 import Boom from "@hapi/boom";
 import { registerValidator } from "./validators";
 import User from "./models/user.model";
+import { sign } from "jsonwebtoken";
+
+@ObjectType()
+class LoginResponse {
+  @Field()
+  accessToken: string;
+}
 
 @Resolver()
 export class UserResolver {
   @Query(() => String)
   hello() {
     return "World";
-  }
-
-  @Query(() => [User])
-  users() {
-    return User.find();
   }
 
   @Mutation(() => Boolean)
@@ -33,5 +35,21 @@ export class UserResolver {
       console.log(Boom.badRequest(error));
       return false;
     }
+  }
+
+  @Mutation(() => Boolean)
+  async login(@Arg("email") email: string, @Arg("password") password: string): Promise<LoginResponse> {
+    const existingUser = await User.findOne({ email });
+    if (!existingUser) throw new Error("No email exists");
+
+    const validUser = bcrypt.compareSync(password, existingUser!.password);
+
+    if (!validUser) {
+      throw new Error("No email exists");
+    }
+
+    return {
+      accessToken: sign({ userID: existingUser.id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "15m" })
+    };
   }
 }
