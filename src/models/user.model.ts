@@ -1,5 +1,4 @@
 import * as mongoose from "mongoose";
-import { ObjectType, Field } from "type-graphql";
 
 const Schema = mongoose.Schema;
 interface UserModel extends mongoose.Document {

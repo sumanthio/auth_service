@@ -37,7 +37,7 @@ export class UserResolver {
     }
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => LoginResponse)
   async login(@Arg("email") email: string, @Arg("password") password: string): Promise<LoginResponse> {
     const existingUser = await User.findOne({ email });
     if (!existingUser) throw new Error("No email exists");
