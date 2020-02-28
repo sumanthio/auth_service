@@ -150,3 +150,5 @@ sftp-config.json
 .settings/
 .vscode/
 .env
+*.lock
+*-lock.json
