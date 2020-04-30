@@ -12,12 +12,11 @@ import User from "./models/user.model";
 import { registerValidator, loginValidator } from "./validators";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./UserResolver";
-
 const MongoDBURL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
 
 Mongoose.connect(MongoDBURL, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 });
 
 Mongoose.connection.on("connected", () => {
@@ -31,13 +30,13 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
 (async () => {
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver]
-    })
+      resolvers: [UserResolver],
+    }),
   });
 
   const server = new Hapi.Server({
     port: "1024",
-    host: "localhost"
+    host: "localhost",
   });
 
   await apolloServer.applyMiddleware({ app: server });
@@ -48,7 +47,7 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
     path: "/",
     handler: () => {
       return "Welcome";
-    }
+    },
   });
 
   server.route({
@@ -64,14 +63,19 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
       if (existingUser) return Boom.badRequest("Email already exists");
 
       const hashedPassword = bcrypt.hashSync(password, 10);
-      const newUser = { first_name, last_name, password: hashedPassword, email };
+      const newUser = {
+        first_name,
+        last_name,
+        password: hashedPassword,
+        email,
+      };
       try {
         const userCreated: Mongoose.Document | any = await User.create(newUser);
         return { status: `${userCreated.email}'s registered` };
       } catch (err) {
         return Boom.badRequest(err);
       }
-    }
+    },
   });
 
   server.route({
@@ -86,20 +90,24 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
         const userExists = await User.findOne({ email });
         if (userExists) {
           if (bcrypt.compareSync(password, userExists.password)) {
-            return sign({ userID: userExists.id }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: "15m" });
+            return sign(
+              { userID: userExists.id },
+              process.env.ACCESS_TOKEN_SECRET!,
+              { expiresIn: "15m" }
+            );
           }
         }
       } catch (err) {
         return Boom.badRequest(err);
       }
-    }
+    },
   });
 
   await server.start();
   console.log(`Server started at ${server.info.uri}`);
 })();
 
-process.on("unhandledRejection", err => {
+process.on("unhandledRejection", (err) => {
   console.log(err);
   process.exit(1);
 });
