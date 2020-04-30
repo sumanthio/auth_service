@@ -8,6 +8,7 @@
   "author": "sumanthio <sumanth@bytemark.co>",
   "license": "MIT",
   "dependencies": {
+    "@hapi/boom": "^9.1.0",
     "@hapi/hapi": "^18.4.1",
     "apollo-server-hapi": "^2.9.13",
     "bcrypt": "^3.0.7",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/graphql": "^14.5.0",
+    "@types/hapi__boom": "^9.0.1",
     "@types/hapi__hapi": "^18.2.6",
     "@types/jsonwebtoken": "^8.3.5",
     "@types/mongoose": "^5.5.32"
