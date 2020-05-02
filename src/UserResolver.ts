@@ -60,7 +60,7 @@ export class UserResolver {
   async login(
     @Arg("email") email: string,
     @Arg("password") password: string,
-    @Ctx() { res }: MyContext
+    @Ctx() { h }: MyContext
   ): Promise<LoginResponse> {
     const existingUser = await User.findOne({ email });
     if (!existingUser) throw new Error("No email exists");
@@ -70,10 +70,15 @@ export class UserResolver {
     if (!validUser) {
       throw new Error("No email exists");
     }
-
-    res.state("jid", "Yo", {
-      isHttpOnly: true,
-    });
+    h.state(
+      "jid",
+      sign({ userID: existingUser.id }, process.env.COOKIE_TOKEN_SECRET!, {
+        expiresIn: "2d",
+      }),
+      {
+        isHttpOnly: true,
+      }
+    );
 
     return {
       accessToken: sign(

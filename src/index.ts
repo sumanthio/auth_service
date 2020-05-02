@@ -12,6 +12,7 @@ import User from "./models/user.model";
 import { registerValidator, loginValidator } from "./validators";
 import { buildSchema } from "type-graphql";
 import { UserResolver } from "./UserResolver";
+
 const MongoDBURL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
 
 Mongoose.connect(MongoDBURL, {
@@ -28,20 +29,10 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
 });
 
 (async () => {
-  const apolloServer = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [UserResolver],
-    }),
-    context: ({ req, res }) => ({ req, res }),
-  });
-
   const server = new Hapi.Server({
     port: "1024",
     host: "localhost",
   });
-
-  await apolloServer.applyMiddleware({ app: server });
-  await apolloServer.installSubscriptionHandlers(server.listener);
 
   server.route({
     method: "GET",
@@ -104,6 +95,15 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
     },
   });
 
+  const apolloServer = new ApolloServer({
+    schema: await buildSchema({
+      resolvers: [UserResolver],
+    }),
+    context: async ({ request, h }) => ({ request, h }),
+  });
+
+  await apolloServer.applyMiddleware({ app: server });
+  await apolloServer.installSubscriptionHandlers(server.listener);
   await server.start();
   console.log(`Server started at ${server.info.uri}`);
 })();
