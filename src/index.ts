@@ -32,6 +32,7 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
     schema: await buildSchema({
       resolvers: [UserResolver],
     }),
+    context: ({ req, res }) => ({ req, res }),
   });
 
   const server = new Hapi.Server({

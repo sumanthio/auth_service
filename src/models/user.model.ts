@@ -16,8 +16,8 @@ let UserSchema = new Schema({
   email: { type: String, required: true, min: 6 },
   password: { type: String, required: true, min: 6 },
   createdAt: { type: Date, default: Date.now },
-  modifiedAt: { type: Date, default: Date.now }
-}).pre<UserModel>("save", function(next: mongoose.HookNextFunction) {
+  modifiedAt: { type: Date, default: Date.now },
+}).pre<UserModel>("save", function (next: mongoose.HookNextFunction) {
   let now = new Date();
   if (this.isNew) this.createdAt = now;
   this.modifiedAt = now;
