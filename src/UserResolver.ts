@@ -6,13 +6,15 @@ import {
   ObjectType,
   Field,
   Ctx,
+  UseMiddleware,
 } from "type-graphql";
 import * as bcrypt from "bcrypt";
 import Boom from "@hapi/boom";
 import { registerValidator } from "./validators";
 import User from "./models/user.model";
-import { sign } from "jsonwebtoken";
 import MyContext from "./MyContext";
+import { createRefreshToken, createAuthToken } from "./auth";
+import { AuthMiddleware } from "./authMiddleware";
 
 @ObjectType()
 class LoginResponse {
@@ -25,6 +27,12 @@ export class UserResolver {
   @Query(() => String)
   hello() {
     return "World";
+  }
+
+  @Query(() => String)
+  @UseMiddleware(AuthMiddleware)
+  test(@Ctx() { payload }: MyContext) {
+    return `Hey there ${payload!.userID}`;
   }
 
   @Mutation(() => Boolean)
@@ -70,22 +78,12 @@ export class UserResolver {
     if (!validUser) {
       throw new Error("No email exists");
     }
-    h.state(
-      "jid",
-      sign({ userID: existingUser.id }, process.env.COOKIE_TOKEN_SECRET!, {
-        expiresIn: "2d",
-      }),
-      {
-        isHttpOnly: true,
-      }
-    );
+    h.state("jid", createRefreshToken(existingUser), {
+      isHttpOnly: true,
+    });
 
     return {
-      accessToken: sign(
-        { userID: existingUser.id },
-        process.env.ACCESS_TOKEN_SECRET!,
-        { expiresIn: "15m" }
-      ),
+      accessToken: createAuthToken(existingUser),
     };
   }
 }
