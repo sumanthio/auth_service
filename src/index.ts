@@ -16,8 +16,7 @@ import { UserResolver } from "./UserResolver";
 import { createAccessToken, createRefreshToken } from "./auth";
 import { sendRefreshToken } from "./sendRefreshToken";
 
-const MongoDBURL = `mongodb://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}`;
-
+const MongoDBURL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 Mongoose.connect(MongoDBURL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
