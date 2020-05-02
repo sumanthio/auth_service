@@ -13,8 +13,9 @@ import Boom from "@hapi/boom";
 import { registerValidator } from "./validators";
 import User from "./models/user.model";
 import MyContext from "./MyContext";
-import { createRefreshToken, createAuthToken } from "./auth";
+import { createRefreshToken, createAccessToken } from "./auth";
 import { AuthMiddleware } from "./authMiddleware";
+import { sendRefreshToken } from "./sendRefreshToken";
 
 @ObjectType()
 class LoginResponse {
@@ -78,12 +79,11 @@ export class UserResolver {
     if (!validUser) {
       throw new Error("No email exists");
     }
-    h.state("jid", createRefreshToken(existingUser), {
-      isHttpOnly: true,
-    });
+
+    sendRefreshToken(h, createRefreshToken(existingUser));
 
     return {
-      accessToken: createAuthToken(existingUser),
+      accessToken: createAccessToken(existingUser),
     };
   }
 }
