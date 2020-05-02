@@ -5,6 +5,6 @@ export default interface MyContext {
   // todo: change this to h someday
   h: Hapi.ResponseToolkit;
   payload?: {
-    userID: string;
+    user_id: string;
   };
 }

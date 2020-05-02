@@ -42,6 +42,7 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
     path: "/refresh_token",
     handler: async (request, h) => {
       const jid = request.state.jid;
+      console.log(request.state);
       if (!jid) {
         return Boom.unauthorized();
       }
@@ -51,8 +52,11 @@ Mongoose.connection.on("error", (error: Mongoose.Error) => {
       } catch (error) {
         return Boom.unauthorized();
       }
-      const userExists = await User.findOne({ _id: payload!.userID });
+      const userExists = await User.findOne({ _id: payload!.user_id });
       if (!userExists) {
+        return Boom.unauthorized();
+      }
+      if (userExists.token_version !== payload.token_version) {
         return Boom.unauthorized();
       }
       sendRefreshToken(h, createRefreshToken(userExists));

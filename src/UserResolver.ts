@@ -33,7 +33,7 @@ export class UserResolver {
   @Query(() => String)
   @UseMiddleware(AuthMiddleware)
   test(@Ctx() { payload }: MyContext) {
-    return `Hey there ${payload!.userID}`;
+    return `Hey there ${payload!.user_id}`;
   }
 
   @Mutation(() => Boolean)
@@ -85,5 +85,11 @@ export class UserResolver {
     return {
       accessToken: createAccessToken(existingUser),
     };
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { h }: MyContext) {
+    sendRefreshToken(h, "");
+    return true;
   }
 }

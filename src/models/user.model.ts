@@ -6,8 +6,9 @@ interface UserModel extends mongoose.Document {
   last_name: string;
   email: string;
   password: string;
-  createdAt: Date;
-  modifiedAt: Date;
+  token_version: number;
+  created_at: Date;
+  modified_at: Date;
 }
 
 let UserSchema = new Schema({
@@ -15,12 +16,13 @@ let UserSchema = new Schema({
   last_name: { type: String, required: true, min: 3, max: 50 },
   email: { type: String, required: true, min: 6 },
   password: { type: String, required: true, min: 6 },
-  createdAt: { type: Date, default: Date.now },
-  modifiedAt: { type: Date, default: Date.now },
+  token_version: { type: Number, default: 0 },
+  created_at: { type: Date, default: Date.now },
+  modified_at: { type: Date, default: Date.now },
 }).pre<UserModel>("save", function (next: mongoose.HookNextFunction) {
   let now = new Date();
-  if (this.isNew) this.createdAt = now;
-  this.modifiedAt = now;
+  if (this.isNew) this.created_at = now;
+  this.modified_at = now;
   next();
 });
 const Users = mongoose.model<UserModel>("users", UserSchema, "users", true);
